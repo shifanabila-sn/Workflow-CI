@@ -1,43 +1,47 @@
 name: Retrain ML Model
 
-on: push: branches: - main # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
+on:
+  push:
+    branches:
+      - main  # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
 
-jobs: build: runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-steps:
-- name: Checkout code
-  uses: actions/checkout@v3
-  # Mengunduh kode dari repositori ke runner GitHub Actions.
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      # Mengunduh kode dari repositori ke runner GitHub Actions.
 
-- name: Set up MLflow Project Environment
-  uses: conda-incubator/setup-miniconda@v2
-  with:
-    miniconda-version: "latest"
-    activate-environment: "mlflow-project-env" # Nama environment di conda.yaml Anda
-    environment-file: MLProject/conda.yaml # Path relatif ke conda.yaml Anda di dalam folder MLProject
-    auto-update-conda: true
-    python-version: 3.9 # Sesuaikan dengan versi Python di conda.yaml Anda
-    # Tindakan ini menyiapkan lingkungan Conda/Python sesuai dengan conda.yaml Anda.
+    - name: Set up MLflow Project Environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        activate-environment: "mlflow-project-env" # Nama environment di conda.yaml Anda
+        environment-file: MLProject/conda.yaml # Path relatif ke conda.yaml Anda di dalam folder MLProject
+        auto-update-conda: true
+        python-version: 3.9 # Sesuaikan dengan versi Python di conda.yaml Anda
+        # Tindakan ini menyiapkan lingkungan Conda/Python sesuai dengan conda.yaml Anda.
 
-- name: Install MLflow
-  shell: bash -l {0} # Pastikan baris ini ada
-  run: |
-    conda activate mlflow-project-env
-    pip install mlflow==2.19.0
-    # MLflow harus diinstal di environment Conda yang baru dibuat.
+    - name: Install MLflow
+      shell: bash -l {0} # Pastikan baris ini ada
+      run: |
+        conda activate mlflow-project-env
+        pip install mlflow==2.19.0
+        # MLflow harus diinstal di environment Conda yang baru dibuat.
 
-- name: Run MLflow Project
-  shell: bash -l {0} # Pastikan baris ini ada
-  run: |
-    conda activate mlflow-project-env
-    mlflow run MLProject/ # Menjalankan proyek di dalam folder MLProject Anda
-    # Perintah ini akan menjalankan entry point 'main' di MLProject Anda, 
-    # yang akan melatih model dan mencatat hasilnya ke folder mlruns lokal di runner.
+    - name: Run MLflow Project
+      shell: bash -l {0} # Pastikan baris ini ada
+      run: |
+        conda activate mlflow-project-env
+        mlflow run MLProject/ # Menjalankan proyek di dalam folder MLProject Anda
+        # Perintah ini akan menjalankan entry point 'main' di MLProject Anda, 
+        # yang akan melatih model dan mencatat hasilnya ke folder mlruns lokal di runner.
 
-- name: Upload MLflow Artifacts
-  uses: actions/upload-artifact@v4
-  with:
-    name: mlflow-run-artifacts
-    path: mlruns/
-    # Mengunggah seluruh folder mlruns yang berisi log eksperimen MLflow sebagai artefak GitHub Actions.
-```
+    - name: Upload MLflow Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mlflow-run-artifacts
+        path: mlruns/
+        # Mengunggah seluruh folder mlruns yang berisi log eksperimen MLflow sebagai artefak GitHub Actions.
