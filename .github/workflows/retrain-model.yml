@@ -3,8 +3,7 @@ name: Retrain ML Model
 on:
   push:
     branches:
-      - main  # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
-
+      - main  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,36 +11,57 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      # Mengunduh kode dari repositori ke runner GitHub Actions.
-
+    
     - name: Set up MLflow Project Environment
       uses: conda-incubator/setup-miniconda@v2
       with:
         miniconda-version: "latest"
-        activate-environment: "mlflow-project-env" # Nama environment di conda.yaml Anda
-        environment-file: MLProject/conda.yaml # Path relatif ke conda.yaml Anda di dalam folder MLProject
+        activate-environment: "mlflow-project-env" 
+        environment-file: MLProject/conda.yaml 
         auto-update-conda: true
-        python-version: 3.9 # Sesuaikan dengan versi Python di conda.yaml Anda
-        # Tindakan ini menyiapkan lingkungan Conda/Python sesuai dengan conda.yaml Anda.
+        python-version: 3.9 
 
     - name: Install MLflow
-      shell: bash -l {0} # Pastikan baris ini ada
+      shell: bash -l {0} 
       run: |
         conda activate mlflow-project-env
         pip install mlflow==2.19.0
-        # MLflow harus diinstal di environment Conda yang baru dibuat.
-
+    
     - name: Run MLflow Project
-      shell: bash -l {0} # Pastikan baris ini ada
+      shell: bash -l {0} 
       run: |
         conda activate mlflow-project-env
-        mlflow run MLProject/ # Menjalankan proyek di dalam folder MLProject Anda
-        # Perintah ini akan menjalankan entry point 'main' di MLProject Anda, 
-        # yang akan melatih model dan mencatat hasilnya ke folder mlruns lokal di runner.
-
+        mlflow run MLProject/ 
+       
     - name: Upload MLflow Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: mlflow-run-artifacts
         path: mlruns/
-        # Mengunggah seluruh folder mlruns yang berisi log eksperimen MLflow sebagai artefak GitHub Actions.
+
+        - name: Log in to Docker Hub # <--- LANGKAH BARU: Login ke Docker Hub
+  uses: docker/login-action@v3
+  with:
+    username: ${{ secrets.DOCKER_SHIFANABILA }} # Menggunakan GitHub Secret
+    password: ${{ secrets.DOCKER_DCKR_PAT_R_3ATPON7RXGPBUOQ8RF9IMIWXO }} # Menggunakan GitHub Secret
+
+- name: Build and Push Docker Image # <--- LANGKAH BARU: Build dan Push Docker Image
+  shell: bash -l {0}
+  run: |
+    conda activate mlflow-project-env
+    # Definisikan nama Docker Image Anda
+    # Ganti 'syfanbla1' dengan username Docker Hub Anda
+    IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model" 
+    IMAGE_TAG="latest"
+    
+    # Membangun Docker Image menggunakan mlflow build-docker
+    # --model-uri: Menunjuk ke model yang baru dilatih oleh mlflow run sebelumnya
+    # 'runs:/$(ls -t mlruns/0 | head -1)/artifacts/random_forest_model' akan menemukan model dari run terbaru
+    mlflow build-docker \
+      --model-uri "runs:/$(ls -t mlruns/0 | head -1)/artifacts/random_forest_model" \
+      --image "${IMAGE_shifanabila}:${IMAGE_shifanabila}"
+
+    # Push Docker Image ke Docker Hub
+    docker push "${IMAGE_shifanabila}:${IMAGE_shifanabila}"
+```
+      
