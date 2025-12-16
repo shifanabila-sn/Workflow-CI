@@ -1,0 +1,6 @@
+# Tautan ke Docker Image dari MLflow Project Anda di Docker Hub
+# Format: https://hub.docker.com/r/<your-docker-username>/<image-name>
+
+# Contoh: https://hub.docker.com/r/syfanbla1/workflow-ci-instax-sales-model
+
+# Nanti, ganti ini dengan URL yang sebenarnya setelah Docker Image berhasil di-push.
