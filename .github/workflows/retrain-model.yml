@@ -1,6 +1,6 @@
 name: Retrain ML Model
 
-on: push: branches: - main # Pastikan ini nama branch utama repositori Anda (umumnya 'main' atau 'master')
+on: push: branches: - main # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
 
 jobs: build: runs-on: ubuntu-latest
 
@@ -35,7 +35,7 @@ steps:
     # yang akan melatih model dan mencatat hasilnya ke folder mlruns lokal di runner.
 
 - name: Upload MLflow Artifacts
-  uses: actions/upload-artifact@v4 # <--- Baris ini dan di bawahnya DITAMBAHKAN
+  uses: actions/upload-artifact@v4
   with:
     name: mlflow-run-artifacts
     path: mlruns/
