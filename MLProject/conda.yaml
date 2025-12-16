@@ -1,14 +1,14 @@
 name: mlflow-project-env
 channels:
   - defaults
-  - conda-forge
+  - conda-forge # Tambahkan conda-forge untuk jangkauan paket lebih luas
 dependencies:
-  - python=3.9.18  # Sesuaikan versi Python Anda
+  - python=3.9 # Cukup spesifikkan versi mayor Python
   - pip
   - pip:
     - mlflow==2.19.0
-    - scikit-learn==1.6.1 # Sesuaikan versi jika berbeda
-    - pandas==2.2.2      # Sesuaikan versi jika berbeda
-    - numpy==2.0.2       # Sesuaikan versi jika berbeda
-    - matplotlib==3.10.0 # Sesuaikan versi jika berbeda
-    - seaborn==0.13.2    # Sesuaikan versi jika berbeda
+    - scikit-learn # Biarkan pip menemukan versi kompatibel terbaru
+    - pandas      # Biarkan pip menemukan versi kompatibel terbaru
+    - numpy       # Biarkan pip menemukan versi kompatibel terbaru
+    # Matplotlib dan seaborn tidak perlu di sini untuk modelling.py.
+    # Jika nanti di Advanced modelling_tuning.py butuh plotting, kita akan tambahkan lagi.
