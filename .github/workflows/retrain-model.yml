@@ -25,13 +25,15 @@ jobs:
         # Tindakan ini menyiapkan lingkungan Conda/Python sesuai dengan conda.yaml Anda.
 
     - name: Install MLflow
-      run: | # Menggunakan pip untuk memastikan MLflow terinstal di environment Conda
+      shell: bash -l {0} # <--- TAMBAHKAN BARIS INI
+      run: |
         conda activate mlflow-project-env
         pip install mlflow==2.19.0
         # MLflow harus diinstal di environment Conda yang baru dibuat.
 
     - name: Run MLflow Project
-      run: | # Menggunakan mlflow run untuk menjalankan proyek Anda
+      shell: bash -l {0} # <--- TAMBAHKAN BARIS INI
+      run: |
         conda activate mlflow-project-env
         mlflow run MLProject/ # Menjalankan proyek di dalam folder MLProject Anda
         # Perintah ini akan menjalankan entry point 'main' di MLProject Anda, 
