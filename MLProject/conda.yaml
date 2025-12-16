@@ -1,0 +1,14 @@
+name: mlflow-project-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9.18  # Sesuaikan versi Python Anda
+  - pip
+  - pip:
+    - mlflow==2.19.0
+    - scikit-learn==1.6.1 # Sesuaikan versi jika berbeda
+    - pandas==2.2.2      # Sesuaikan versi jika berbeda
+    - numpy==2.0.2       # Sesuaikan versi jika berbeda
+    - matplotlib==3.10.0 # Sesuaikan versi jika berbeda
+    - seaborn==0.13.2    # Sesuaikan versi jika berbeda
