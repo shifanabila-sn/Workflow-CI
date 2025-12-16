@@ -3,7 +3,8 @@ name: Retrain ML Model
 on:
   push:
     branches:
-      - main  
+      - main  # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,29 +40,32 @@ jobs:
         name: mlflow-run-artifacts
         path: mlruns/
 
-        - name: Log in to Docker Hub # <--- LANGKAH BARU: Login ke Docker Hub
-  uses: docker/login-action@v3
-  with:
-    username: ${{ secrets.DOCKER_SHIFANABILA }} # Menggunakan GitHub Secret
-    password: ${{ secrets.DOCKER_DCKR_PAT_R_3ATPON7RXGPBUOQ8RF9IMIWXO }} # Menggunakan GitHub Secret
+    - name: Log in to Docker Hub # LANGKAH BARU: Login ke Docker Hub
+      uses: docker/login-action@v3
+      with:
+        # Pastikan nama secret ini sama persis dengan yang Anda buat di GitHub Secrets
+        username: ${{ secrets.DOCKER_SHIFANABILA }} # Menggunakan GitHub Secret
+        password: ${{ secrets.DOCKER_DCKR_PAT_R_3ATPON7RXGPBUOQ8RF9IMIWXO }} # Menggunakan GitHub Secret (ini PAT)
 
-- name: Build and Push Docker Image # <--- LANGKAH BARU: Build dan Push Docker Image
-  shell: bash -l {0}
-  run: |
-    conda activate mlflow-project-env
-    # Definisikan nama Docker Image Anda
-    # Ganti 'syfanbla1' dengan username Docker Hub Anda
-    IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model" 
-    IMAGE_TAG="latest"
-    
-    # Membangun Docker Image menggunakan mlflow build-docker
-    # --model-uri: Menunjuk ke model yang baru dilatih oleh mlflow run sebelumnya
-    # 'runs:/$(ls -t mlruns/0 | head -1)/artifacts/random_forest_model' akan menemukan model dari run terbaru
-    mlflow build-docker \
-      --model-uri "runs:/$(ls -t mlruns/0 | head -1)/artifacts/random_forest_model" \
-      --image "${IMAGE_shifanabila}:${IMAGE_shifanabila}"
+    - name: Build and Push Docker Image # LANGKAH BARU: Build dan Push Docker Image
+      shell: bash -l {0}
+      run: |
+        conda activate mlflow-project-env
+        # Definisikan nama Docker Image Anda
+        # Ganti 'syfanbla1' dengan username Docker Hub Anda
+        IMAGE_NAME="syfanabila/workflow-ci-instax-sales-model" 
+        IMAGE_TAG="latest"
+        
+        # Dapatkan URI model dari run MLflow terbaru di eksperimen default (0)
+        # Ini lebih robust daripada parsing output ls -t
+        # Pastikan model Anda dilog di MLflow run dengan nama 'random_forest_model'
+        MODEL_RUN_ID=$(mlflow search runs --experiment-id 0 --max-results 1 --order-by "start_time DESC" --query "attributes.status = 'FINISHED'" --output-format json | jq -r '.[0].info.run_id')
+        MODEL_URI="runs:/${MODEL_RUN_ID}/artifacts/random_forest_model"
 
-    # Push Docker Image ke Docker Hub
-    docker push "${IMAGE_shifanabila}:${IMAGE_shifanabila}"
-```
-      
+        echo "Building Docker image from model URI: ${MODEL_URI}"
+        mlflow build-docker \
+          --model-uri "${MODEL_URI}" \
+          --image "${IMAGE_NAME}:${IMAGE_TAG}"
+
+        echo "Pushing Docker image ${IMAGE_NAME}:${IMAGE_TAG} to Docker Hub"
+        docker push "${IMAGE_NAME}:${IMAGE_TAG}"
