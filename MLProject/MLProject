@@ -1,1 +1,9 @@
+name: Instax-Sales-Model
 
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    command: "python modelling.py"
+    parameters:
+      raw_data_path: {type: str, default: "instax_sales_transaction_data.csv"}
