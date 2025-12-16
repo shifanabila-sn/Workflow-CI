@@ -1,0 +1,29 @@
+name: Retrain ML Model
+
+on: push: branches: - main 
+jobs: build: runs-on: ubuntu-latest
+
+steps:
+- name: Checkout code
+  uses: actions/checkout@v3
+
+- name: Set up MLflow Project Environment
+  uses: conda-incubator/setup-miniconda@v2
+  with:
+    miniconda-version: "latest"
+    activate-environment: "mlflow-project-env" # Nama environment di conda.yaml Anda
+    environment-file: MLProject/conda.yaml # Path ke conda.yaml Anda
+    auto-update-conda: true
+    python-version: 3.9 # Sesuaikan dengan versi Python di conda.yaml
+
+- name: Install MLflow
+  run: | 
+    conda activate mlflow-project-env
+    pip install mlflow==2.19.0
+  
+
+- name: Run MLflow Project
+  run: |
+    conda activate mlflow-project-env
+    mlflow run MLProject/ 
+```
