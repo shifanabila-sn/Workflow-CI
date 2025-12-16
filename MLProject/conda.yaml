@@ -1,14 +1,35 @@
-name: mlflow-project-env
-channels:
-  - defaults
-  - conda-forge # Tambahkan conda-forge untuk jangkauan paket lebih luas
-dependencies:
-  - python=3.9 # Cukup spesifikkan versi mayor Python
-  - pip
-  - pip:
-    - mlflow==2.19.0
-    - scikit-learn # Biarkan pip menemukan versi kompatibel terbaru
-    - pandas      # Biarkan pip menemukan versi kompatibel terbaru
-    - numpy       # Biarkan pip menemukan versi kompatibel terbaru
-    # Matplotlib dan seaborn tidak perlu di sini untuk modelling.py.
-    # Jika nanti di Advanced modelling_tuning.py butuh plotting, kita akan tambahkan lagi.
+name: Retrain ML Model
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up MLflow Project Environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        activate-environment: "mlflow-project-env"
+        environment-file: MLProject/conda.yaml
+        auto-update-conda: true
+        python-version: 3.9
+
+    - name: Install MLflow
+      shell: bash -l {0} # <--- Tambahkan baris ini
+      run: |
+        conda activate mlflow-project-env
+        pip install mlflow==2.19.0
+
+    - name: Run MLflow Project
+      shell: bash -l {0} # <--- Tambahkan baris ini
+      run: |
+        conda activate mlflow-project-env
+        mlflow run MLProject/
