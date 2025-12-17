@@ -28,7 +28,7 @@ jobs:
         conda activate mlflow-project-env
         pip install mlflow==2.19.0
 
-    - name: Run MLflow Project (Training & Preprocessing)
+    - name: Run MLflow Project (Training + Preprocessing)
       shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
@@ -40,7 +40,7 @@ jobs:
         username: ${{ secrets.DOCKER_SHIFANABILA }}
         password: ${{ secrets.DOCKER_DCKR_PAT_A7HTX5QY2QLGUVTMTVNDKGPCVCO }}
 
-        - name: Build and Push Docker Image
+    - name: Build and Push Docker Image from MLflow Model
       shell: bash -l {0}
       run: |
         set -e
@@ -57,9 +57,10 @@ jobs:
           exit 1
         fi
 
-        MODEL_URI="runs:/${RUN_ID}/artifacts/random_forest_model"
+        echo "RUN ID: $RUN_ID"
 
-        echo "Model URI: $MODEL_URI"
+        MODEL_URI="runs:/${RUN_ID}/artifacts/random_forest_model"
+        echo "MODEL URI: $MODEL_URI"
 
         mlflow models build-docker \
           --model-uri "$MODEL_URI" \
