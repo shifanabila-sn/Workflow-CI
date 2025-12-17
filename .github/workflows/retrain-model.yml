@@ -40,14 +40,13 @@ jobs:
         username: ${{ secrets.DOCKER_SHIFANABILA }}
         password: ${{ secrets.DOCKER_DCKR_PAT_A7HTX5QY2QLGUVTMTVNDKGPCVCO }}
 
-    - name: Build and Push Docker Image
+        - name: Build and Push Docker Image
       shell: bash -l {0}
       run: |
         set -e
         conda activate mlflow-project-env
 
         IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model"
-        IMAGE_TAG="latest"
 
         echo "Mencari MLflow run ID terbaru..."
 
@@ -62,8 +61,8 @@ jobs:
 
         echo "Model URI: $MODEL_URI"
 
-        mlflow build-docker \
+        mlflow models build-docker \
           --model-uri "$MODEL_URI" \
-          --image "$IMAGE_NAME:$IMAGE_TAG"
+          --name "$IMAGE_NAME"
 
-        docker push "$IMAGE_NAME:$IMAGE_TAG"
+        docker push "$IMAGE_NAME"
