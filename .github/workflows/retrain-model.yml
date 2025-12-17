@@ -1,4 +1,5 @@
 name: Retrain ML Model
+
 on:
   push:
     branches:
@@ -52,6 +53,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
+        
         # Definisikan nama Docker Image Anda
         # Ganti 'syfanbla1' dengan username Docker Hub Anda
         IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model" 
@@ -63,6 +65,14 @@ jobs:
         MODEL_RUN_ID=$(mlflow search runs --experiment-id 0 --max-results 1 --order-by "start_time DESC" --query "attributes.status = 'FINISHED'" --output-format json | jq -r '.[0].info.run_id')
         MODEL_URI="runs:/${MODEL_RUN_ID}/artifacts/random_forest_model"
 
+        # Penanganan jika MODEL_RUN_ID kosong atau null
+        if [ -z "$MODEL_RUN_ID" ] || [ "$MODEL_RUN_ID" == "null" ]; then
+          echo "ERROR: Could not find a finished MLflow run for model building. Ensure 'Run MLflow Project' step completes successfully and logs a model."
+          exit 1
+        fi
+
+        MODEL_URI="runs:/${MODEL_RUN_ID}/artifacts/random_forest_model"
+        
         echo "Building Docker image from model URI: ${MODEL_URI}"
         mlflow build-docker \
           --model-uri "${MODEL_URI}" \
