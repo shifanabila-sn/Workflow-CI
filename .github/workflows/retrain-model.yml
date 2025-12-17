@@ -59,7 +59,8 @@ jobs:
 
         echo "RUN ID: $RUN_ID"
 
-        MODEL_URI="runs:/${RUN_ID}/artifacts/random_forest_model"
+      
+        MODEL_URI="runs:/${RUN_ID}/random_forest_model"
         echo "MODEL URI: $MODEL_URI"
 
         mlflow models build-docker \
