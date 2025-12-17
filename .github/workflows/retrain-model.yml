@@ -1,46 +1,42 @@
-name: Retrain ML Model
+name: MLflow CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
-  build:
+  train-and-build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Setup Conda Environment
-      uses: conda-incubator/setup-miniconda@v2
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        miniconda-version: "latest"
+        python-version: "3.9"
         activate-environment: mlflow-project-env
-        environment-file: MLProject/conda.yaml
-        auto-update-conda: true
-        python-version: 3.9
+        auto-activate-base: false
 
-    - name: Install MLflow
+    - name: Install dependencies
       shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
-        pip install mlflow==2.19.0
+        pip install mlflow scikit-learn pandas
 
-    - name: Run MLflow Project (Training + Preprocessing)
+    - name: Run training
       shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
-        mlflow run MLProject
+        python Membangun_model/modelling.py
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_SHIFANABILA }}
-        password: ${{ secrets.DOCKER_DCKR_PAT_A7HTX5QY2QLGUVTMTVNDKGPCVCO }}
+    - name: Debug MLflow Artifacts
+      shell: bash -l {0}
+      run: |
+        ls -R mlruns/0
 
-        - name: Build and Push Docker Image from MLflow Model
+    - name: Build Docker Image from MLflow Model
       shell: bash -l {0}
       run: |
         set -e
@@ -50,11 +46,6 @@ jobs:
 
         RUN_ID=$(ls -td mlruns/0/* | grep -v datasets | head -n 1 | xargs basename)
 
-        if [ -z "$RUN_ID" ]; then
-          echo "ERROR: MLflow run ID tidak ditemukan"
-          exit 1
-        fi
-
         echo "RUN ID: $RUN_ID"
 
         MODEL_URI="runs:/${RUN_ID}/model"
@@ -63,5 +54,3 @@ jobs:
         mlflow models build-docker \
           --model-uri "$MODEL_URI" \
           --name "$IMAGE_NAME"
-
-        docker push "$IMAGE_NAME"
