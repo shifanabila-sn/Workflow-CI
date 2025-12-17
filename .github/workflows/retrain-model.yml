@@ -45,7 +45,7 @@ jobs:
       with:
         # Pastikan nama secret ini sama persis dengan yang Anda buat di GitHub Secrets
         username: ${{ secrets.DOCKER_SHIFANABILA }} # Menggunakan GitHub Secret
-        password: ${{ secrets.DOCKER_DCKR_PAT_R_3ATPON7RXGPBUOQ8RF9IMIWXO }} # Menggunakan GitHub Secret (ini PAT)
+        password: ${{ secrets.DOCKER_DCKR_PAT_FYEIDMLESY5I0E7OACD9NLZU1UA }} # Menggunakan GitHub Secret (ini PAT)
 
     - name: Build and Push Docker Image # LANGKAH BARU: Build dan Push Docker Image
       shell: bash -l {0}
