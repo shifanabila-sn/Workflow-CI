@@ -6,4 +6,4 @@ entry_points:
   main:
     command: "python modelling.py --preprocessed-data-path {preprocessed_data_path}"
     parameters:
-      preprocessed_data_path: {type: str, default: "instax_sales_transaction_data.csv"}
+      preprocessed_data_path: {type: str, default: "instax_sales_preprocessing.csv"}
