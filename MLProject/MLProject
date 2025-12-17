@@ -4,6 +4,6 @@ conda_env: conda.yaml
 
 entry_points:
   main:
-    command: "python modelling.py"
+    command: "python modelling.py --preprocessed-data-path {preprocessed_data_path}"
     parameters:
-      raw_data_path: {type: str, default: "instax_sales_transaction_data.csv"}
+      preprocessed_data_path: {type: str, default: "instax_sales_transaction_data.csv"}
