@@ -44,8 +44,8 @@ jobs:
       uses: docker/login-action@v3
       with:
         # Pastikan nama secret ini sama persis dengan yang Anda buat di GitHub Secrets
-        username: ${{ secrets.DOCKER_shifanabila }} # Menggunakan GitHub Secret
-        password: ${{ secrets.DOCKER_dckr_pat_FYeIdMlEsy5I0E7oacD9NLZu1uA }} # Menggunakan GitHub Secret (ini PAT)
+        username: ${{ secrets.DOCKER_SHIFANABILA }} # Menggunakan GitHub Secret
+        password: ${{ secrets.DOCKER_DCKR_PAT_A7HTX5QY2QLGUVTMTVNDKGPCVCO }} # Menggunakan GitHub Secret (ini PAT)
 
     - name: Build and Push Docker Image # LANGKAH BARU: Build dan Push Docker Image
       shell: bash -l {0}
