@@ -27,12 +27,14 @@ jobs:
       run: |
         conda activate mlflow-project-env
         pip install mlflow==2.19.0
+        sudo apt-get update
+        sudo apt-get install -y jq
     
     - name: Run MLflow Project
       shell: bash -l {0} 
       run: |
         conda activate mlflow-project-env
-        mlflow run MLProject/ 
+        python -m mlflow run MLProject 
        
     - name: Upload MLflow Artifacts
       uses: actions/upload-artifact@v4
