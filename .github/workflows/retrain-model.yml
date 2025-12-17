@@ -53,7 +53,7 @@ jobs:
         conda activate mlflow-project-env
         # Definisikan nama Docker Image Anda
         # Ganti 'syfanbla1' dengan username Docker Hub Anda
-        IMAGE_NAME="syfanabila/workflow-ci-instax-sales-model" 
+        IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model" 
         IMAGE_TAG="latest"
         
         # Dapatkan URI model dari run MLflow terbaru di eksperimen default (0)
