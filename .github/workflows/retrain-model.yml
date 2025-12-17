@@ -1,5 +1,4 @@
 name: Retrain ML Model
-
 on:
   push:
     branches:
