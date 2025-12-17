@@ -3,7 +3,7 @@ name: Retrain ML Model
 on:
   push:
     branches:
-      - main  # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
+      - main
 
 jobs:
   build:
@@ -17,66 +17,58 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         miniconda-version: "latest"
-        activate-environment: "mlflow-project-env" 
-        environment-file: MLProject/conda.yaml 
+        activate-environment: "mlflow-project-env"
+        environment-file: MLProject/conda.yaml
         auto-update-conda: true
-        python-version: 3.9 
+        python-version: 3.9
 
     - name: Install MLflow
-      shell: bash -l {0} 
+      shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
         pip install mlflow==2.19.0
         sudo apt-get update
         sudo apt-get install -y jq
-    
+
     - name: Run MLflow Project
-      shell: bash -l {0} 
+      shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
-        python -m mlflow run MLProject 
-       
+        python -m mlflow run MLProject
+
     - name: Upload MLflow Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: mlflow-run-artifacts
         path: mlruns/
 
-    - name: Log in to Docker Hub # LANGKAH BARU: Login ke Docker Hub
+    - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
-        # Pastikan nama secret ini sama persis dengan yang Anda buat di GitHub Secrets
-        username: ${{ secrets.DOCKER_SHIFANABILA }} # Menggunakan GitHub Secret
-        password: ${{ secrets.DOCKER_DCKR_PAT_A7HTX5QY2QLGUVTMTVNDKGPCVCO }} # Menggunakan GitHub Secret (ini PAT)
+        username: ${{ secrets.DOCKER_SHIFANABILA }}
+        password: ${{ secrets.DOCKER_DCKR_PAT_A7HTX5QY2QLGUVTMTVNDKGPCVCO }}
 
-    - name: Build and Push Docker Image # LANGKAH BARU: Build dan Push Docker Image
+    - name: Build and Push Docker Image
       shell: bash -l {0}
       run: |
         conda activate mlflow-project-env
-        
-        # Definisikan nama Docker Image Anda
-        # Ganti 'syfanbla1' dengan username Docker Hub Anda
-        IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model" 
-        IMAGE_TAG="latest"
-        
-        # Dapatkan URI model dari run MLflow terbaru di eksperimen default (0)
-        # Ini lebih robust daripada parsing output ls -t
-        # Pastikan model Anda dilog di MLflow run dengan nama 'random_forest_model'
-        MODEL_RUN_ID=$(mlflow search runs --experiment-id 0 --max-results 1 --order-by "start_time DESC" --query "attributes.status = 'FINISHED'" --output-format json | jq -r '.[0].info.run_id')
-        MODEL_URI="runs:/${MODEL_RUN_ID}/artifacts/random_forest_model"
 
-        # Penanganan jika MODEL_RUN_ID kosong atau null
-        if [ -z "$MODEL_RUN_ID" ] || [ "$MODEL_RUN_ID" == "null" ]; then
-          echo "ERROR: Could not find a finished MLflow run for model building. Ensure 'Run MLflow Project' step completes successfully and logs a model."
+        IMAGE_NAME="shifanabila/workflow-ci-instax-sales-model"
+        IMAGE_TAG="latest"
+
+        # Ambil RUN ID MLflow terbaru dari folder mlruns
+        RUN_ID=$(ls -td mlruns/0/* | head -n 1 | xargs basename)
+
+        # Validasi RUN_ID
+        if [ -z "$RUN_ID" ]; then
+          echo "ERROR: Tidak menemukan MLflow run"
           exit 1
         fi
 
-        MODEL_URI="runs:/${MODEL_RUN_ID}/artifacts/random_forest_model"
-        
+        MODEL_URI="runs:/${RUN_ID}/artifacts/random_forest_model"
+
         echo "Building Docker image from model URI: ${MODEL_URI}"
+
         mlflow build-docker \
           --model-uri "${MODEL_URI}" \
-          --image "${IMAGE_NAME}:${IMAGE_TAG}"
-
-        echo "Pushing Docker image ${IMAGE_NAME}:${IMAGE_TAG} to Docker Hub"
-        docker push "${IMAGE_NAME}:${IMAGE_TAG}"
+          --image "
