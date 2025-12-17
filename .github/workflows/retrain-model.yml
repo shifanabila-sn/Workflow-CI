@@ -1,44 +1,21 @@
-name: Retrain ML Model
+name: Minimal CI Check
 
-on:
-  push:
-    branches:
-      - main  # Ganti 'main' jika branch utama Anda adalah 'master' atau nama lain
+on: 
+  push: 
+    branches: 
+          - main
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+jobs: build: runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+steps:
+- name: Checkout code
+  uses: actions/checkout@v3
 
-    - name: Set up MLflow Project Environment
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniconda-version: "latest"
-        activate-environment: "mlflow-project-env"
-        environment-file: MLProject/conda.yaml
-        auto-update-conda: true
-        python-version: 3.12 # Pastikan ini 3.12
+- name: Set up Python 3.12
+  uses: actions/setup-python@v4
+  with:
+    python-version: 3.12
 
-    - name: Install Dependencies and Tools 
-      shell: bash -l {0} 
-      run: |
-        conda activate mlflow-project-env
-        pip install mlflow==2.19.0
-        pip install scikit-learn pandas numpy matplotlib seaborn # Pastikan ini terinstal
-        sudo apt-get update
-        sudo apt-get install -y jq 
-
-    - name: Run MLflow Project
-      shell: bash -l {0} 
-      run: |
-        conda activate mlflow-project-env
-        python -m mlflow run MLProject/ 
-
-    - name: Upload MLflow Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: mlflow-run-artifacts
-        path: mlruns/
+- name: Display Python Version
+  run: python --version
+```
